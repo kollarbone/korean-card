@@ -1,13 +1,21 @@
-import {Categories} from '../data/Categories'
 import {NavLink} from 'react-router-dom'
+import { useTypedSelector } from '../hooks/useTypedSelector';
 
-export function Category() {
+export const Category : React.FC = () => {
+  const { error, loading, category} = useTypedSelector(state => state.word)
+  
+  if (loading) {
+    return <h1>Идет загрузка...</h1>
+  }
+  if (error || category.length === 0) {
+    return <h1>{error}</h1>
+  }
     return (
       <div className="flex flex-row flex-wrap justify-evenly content-center mt-10">
-        {Categories.map((category, index)=> 
-          <NavLink to={'/'+ category.category} key={index}>
+        {category.map((category, index)=> 
+          <NavLink to={'/'+ category} key={index}>
             <div className='bg-blue-200 px-4 py-2 rounded-md w-80 h-32 mb-10 flex justify-center items-center hover:scale-105 cursor-pointer'>
-              <span className='text-2xl' key={index}>{category.category}</span>
+              <span className='text-2xl' key={index}>{category}</span>
             </div>
           </NavLink>
       )}

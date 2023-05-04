@@ -1,3 +1,36 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* .card {
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 1s;
+    transform: perspective(1000px) rotateY(var(--rotate-y, 0)) translateY(var(--translate-y, 0));
+}
+.card.flip {
+    transform: rotateY(180deg);
+}
+.card .back, .card .front {
+    backface-visibility: hidden;
+    position: absolute;
+}
+.card .back {
+    transform: rotateY(180deg);
+} */
+
+.card {
+    position: relative;
+}
+.card.flip {
+    transform: rotateY(180deg);
+    transition: transform 1s;
+    transform-style: preserve-3d;
+}
+.card__face {
+    position: absolute;
+    backface-visibility: hidden;
+}
+.card__face--back {
+    transform: rotateY(180deg);
+}

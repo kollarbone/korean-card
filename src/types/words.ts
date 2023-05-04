@@ -9,6 +9,7 @@ export interface WordState {
     words: Word[];
     loading: boolean;
     error: null | string;
+    category: string[]
 }
 
 export enum WordActionTypes {

@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { useTypedSelector } from "../hooks/useTypedSelector";
 import { useActions } from "../hooks/useAction";
 import { useParams } from "react-router-dom";
-
+import BackButton from "../components/BackButton";
+import {GrNext, GrPrevious} from "react-icons/gr"
 
 const Card: React.FC = () => {
     const {words, error, loading} = useTypedSelector(state => state.word)
@@ -14,6 +15,7 @@ const Card: React.FC = () => {
     
     useEffect(()=> {
         fetchWords()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     if (loading) {
@@ -28,29 +30,30 @@ const Card: React.FC = () => {
              data.push(item)
         }
     })
+
     return (
         <div className="mx-auto mt-10">
-            <div onClick={()=> setFlip(!flip)} className="bg-pink-200 px-4 py-2 rounded-md w-80 h-40 mx-auto mt-10 flex justify-center items-center hover:scale-105 cursor-pointer" >
-                {flip?
-                <span className="text-2xl">
+            <BackButton/>
+            <div onClick={()=> setFlip(!flip)}
+                className={`card ${flip ? "flip" : ""} bg-pink-200 px-4 py-2 rounded-md w-80 h-40 mx-auto mt-10 flex flex-row justify-center items-center hover:scale-105 cursor-pointer`} >
+                <span className="card__face text-5xl card__face--front">
                     {data[activeCard].word}
                     </span>
-                :<img className="w-10/12 px-4 py-2 rounded-md" 
-                    src={data[activeCard].image} 
-                    alt={data[activeCard].word}
-                />
-                }
+                <span className="card__face card__face--back w-fit px-4 py-2 rounded-md text-5xl text-center" 
+                    role="img"
+                >{data[activeCard].image}<span>{data[activeCard].trans}</span></span>
+               
             </div>
             <div className="flex justify-center items-center">
                 {activeCard !== 0 && 
                     <button onClick={()=> setActiveCard(activeCard-1)} 
                         className="bg-yellow-200 px-4 py-2 rounded-md w-15 h-10 mx-auto  mt-10 hover:scale-105 cursor-pointer"
-                        >prev
+                        ><GrPrevious/>
                     </button>}
                 {data.length - 1 !== (activeCard ) && 
                     <button onClick={()=> setActiveCard(activeCard+1)} 
                         className="bg-yellow-200 px-4 py-2 rounded-md w-15 h-10 mx-auto  mt-10 hover:scale-105 cursor-pointer"
-                        >next
+                        ><GrNext/>
                     </button>
                 }
             </div>

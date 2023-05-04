@@ -6,7 +6,7 @@ export const fetchWords = () => {
     return async (dispatch: Dispatch<wordAction>) => {
         try {
             dispatch({type: WordActionTypes.FETCH_WORDS})
-            const response = [...Words]
+            const response = await [...Words]
             dispatch({
                 type: WordActionTypes.FETCH_WORDS_SUCCESS,
                 payload: response
