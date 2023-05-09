@@ -3,8 +3,9 @@ import { useTypedSelector } from "../hooks/useTypedSelector";
 import { useActions } from "../hooks/useAction";
 import { useParams } from "react-router-dom";
 import BackButton from "../components/BackButton";
-import {GrNext, GrPrevious} from "react-icons/gr"
-import { Frame, useMotionValue, useTransform, useAnimation } from 'framer';
+import {GrNext, GrPrevious, GrClose} from "react-icons/gr"
+import {BsRepeat, BsPlayFill} from 'react-icons/bs'
+import { Word } from "../types/words";
 
 const Card: React.FC = () => {
     const {words, error, loading} = useTypedSelector(state => state.word)
@@ -13,15 +14,9 @@ const Card: React.FC = () => {
     const [flip, setFlip] = useState(false)
     const path = useParams().category;
     const data:any = [];
-
-    const motionValue = useMotionValue(0);
-    const rotateValue = useTransform(motionValue, [-200, 200], [-50, 50]);
-    const opacityValue = useTransform(
-      motionValue,
-      [-200, -150, 0, 150, 200],
-      [0, 1, 1, 1, 0]
-    );
-    const animControls = useAnimation();
+    const [doneCards, setDoneCards] = useState(1)
+    const [repeat, setRepeat] = useState<Word[]>([])
+    const [useRepeat, setUseRepeat] = useState(false)
 
     useEffect(()=> {
         fetchWords()
@@ -40,29 +35,68 @@ const Card: React.FC = () => {
              data.push(item)
         }
     })
-    
+    const addWords = (data:Word) => {
+        setRepeat(prev=>[...prev, data])
+    }
     return (
-        
-        <div className="mx-auto mt-10">
+        <div className="mx-auto mt-10 text-center">
             <BackButton/>
-            <div onClick={()=> setFlip(!flip)}
-                className={`card ${flip ? "flip" : ""} bg-pink-200 px-4 py-2 rounded-md w-80 h-40 mx-auto mt-10 flex flex-row justify-center items-center  cursor-pointer`} >
-                <span className="card__face text-5xl card__face--front">
-                    {data[activeCard].word}
-                    </span>
-                <span className="card__face card__face--back w-fit px-4 py-2 rounded-md text-5xl text-center" 
-                    role="img"
-                >{data[activeCard].image}<span>{data[activeCard].trans}</span></span>
-            
-            </div>
-            <div className="flex justify-center items-center">
+            {useRepeat && repeat ? <>
+                <p className="text-lg">Repeat:</p>
+                <p className="text-lg">{doneCards}/{repeat.length}</p></>:
+                <p className="text-lg">{doneCards}/{data.length}</p>
+            }
+            {useRepeat && repeat ?
+                <div onClick={()=> setFlip(!flip)}
+                    className={`card ${flip ? "flip" : ""} bg-pink-200 px-4 py-2 rounded-md w-80 h-40 mx-auto mt-10 flex flex-row justify-center items-center  cursor-pointer`} >
+                    <span className="card__face text-5xl card__face--front">
+                        {repeat[activeCard].word}
+                        </span>
+                    <span className="card__face card__face--back w-fit px-4 py-2 rounded-md text-5xl text-center" 
+                        role="img"
+                    >{repeat[activeCard].image}<span>{repeat[activeCard].trans}</span></span>
+                </div>:
+                <div onClick={()=> setFlip(!flip)}
+                    className={`card ${flip ? "flip" : ""} bg-pink-200 px-4 py-2 rounded-md w-80 h-40 mx-auto mt-10 flex flex-row justify-center items-center  cursor-pointer`} >
+                    <span className="card__face text-5xl card__face--front">
+                        {data[activeCard].word}
+                        </span>
+                    <span className="card__face card__face--back w-fit px-4 py-2 rounded-md text-5xl text-center" 
+                        role="img"
+                    >{data[activeCard].image}<span>{data[activeCard].trans}</span></span>
+                
+                </div>}
+            <div className="flex justify-center items-center w-1/2 m-auto">
                 {activeCard !== 0 && 
-                    <button onClick={()=> setActiveCard(activeCard-1)} 
+                    <button onClick={()=> {setActiveCard(activeCard-1); setDoneCards(doneCards-1)}} 
                         className="bg-yellow-200 px-4 py-2 rounded-md w-15 h-10 mx-auto  mt-10 hover:scale-105 cursor-pointer"
                         ><GrPrevious/>
+                    </button>
+                }
+                    {data.length - 1 !== (activeCard ) && !useRepeat &&
+                    <button onClick={()=> {setActiveCard(activeCard+1); setDoneCards(doneCards+1);addWords(data[activeCard])}}
+                        className="bg-yellow-200 px-4 py-2 rounded-md w-15 h-10 mx-auto  mt-10 hover:scale-105 cursor-pointer"
+                        ><BsRepeat/>
                     </button>}
-                {data.length - 1 !== (activeCard ) && 
-                    <button onClick={()=> setActiveCard(activeCard+1)} 
+                    {data.length - 1 === (activeCard ) && !useRepeat && repeat &&
+                    <button onClick={()=> {addWords(data[activeCard]); setUseRepeat(true); setActiveCard(0);setDoneCards(1)}}
+                        className="bg-green-200 px-4 py-2 rounded-md w-15 h-10 mx-auto  mt-10 hover:scale-105 cursor-pointer"
+                        ><BsPlayFill/>
+                    </button>}
+                    {useRepeat && 
+                    <button onClick={()=> {setUseRepeat(false); setActiveCard(0);setDoneCards(1)}}
+                        className="bg-gray-200 px-4 py-2 rounded-md w-15 h-10 mx-auto  mt-10 hover:scale-105 cursor-pointer"
+                        ><GrClose/>
+                    </button> }
+                
+                {data.length - 1 !== (activeCard ) && !useRepeat &&
+                    <button onClick={()=> {setActiveCard(activeCard+1); setDoneCards(doneCards+1)}} 
+                        className="bg-yellow-200 px-4 py-2 rounded-md w-15 h-10 mx-auto  mt-10 hover:scale-105 cursor-pointer"
+                        ><GrNext/>
+                    </button>
+                }
+                {useRepeat && repeat && repeat.length - 1 !== (activeCard ) &&
+                    <button onClick={()=> {setActiveCard(activeCard+1); setDoneCards(doneCards+1)}} 
                         className="bg-yellow-200 px-4 py-2 rounded-md w-15 h-10 mx-auto  mt-10 hover:scale-105 cursor-pointer"
                         ><GrNext/>
                     </button>

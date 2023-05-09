@@ -6,7 +6,7 @@ function App() {
   
   return (
   <BrowserRouter>
-  <p className='text-3xl p-3 bg-violet-200 text-center'>Wellcom to Korean Cards!</p>
+  <p className='text-3xl p-3 bg-violet-200 text-center'>Welcome to Korean Cards!</p>
     <Routes>
       <Route path='/' element={ <Category/> }/>
       <Route path='/:category' element={ <Card/> }/>

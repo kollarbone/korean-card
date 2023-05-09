@@ -9,13 +9,14 @@ export interface WordState {
     words: Word[];
     loading: boolean;
     error: null | string;
-    category: string[]
+    category: string[];
 }
 
 export enum WordActionTypes {
     FETCH_WORDS = "FETCH_WORDS",
     FETCH_WORDS_SUCCESS = "FETCH_WORDS_SUCCESS",
-    FETCH_WORDS_ERROR = "FETCH_WORDS_ERROR"
+    FETCH_WORDS_ERROR = "FETCH_WORDS_ERROR",
+    
 }
 
 interface fetchWordsAction {
@@ -30,4 +31,4 @@ interface fetchWordsErrorAction {
     payload: string
 }
 
-export type wordAction = fetchWordsAction | fetchWordsSuccessAction | fetchWordsErrorAction
+export type wordAction = fetchWordsAction | fetchWordsSuccessAction | fetchWordsErrorAction 

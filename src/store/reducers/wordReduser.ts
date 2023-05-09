@@ -8,7 +8,7 @@ const initialState: WordState  = {
     error: null,
     category: [
         "fruits",
-        "drinks",]
+        "drinks",],
 }
 
 export const wordReducer = (state = initialState, action: wordAction) : WordState => {
