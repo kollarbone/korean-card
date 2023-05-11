@@ -6,6 +6,7 @@ import BackButton from "../components/BackButton";
 import {GrNext, GrPrevious, GrClose} from "react-icons/gr"
 import {BsRepeat, BsPlayFill} from 'react-icons/bs'
 import { Word } from "../types/words";
+import {motion, useMotionValue, useTransform} from "framer-motion"
 
 const Card: React.FC = () => {
     const {words, error, loading} = useTypedSelector(state => state.word)
@@ -13,10 +14,13 @@ const Card: React.FC = () => {
     const [activeCard, setActiveCard] = useState(0)
     const [flip, setFlip] = useState(false)
     const path = useParams().category;
-    const data:any = [];
+    const data:Word[] = [];
     const [doneCards, setDoneCards] = useState(1)
     const [repeat, setRepeat] = useState<Word[]>([])
     const [useRepeat, setUseRepeat] = useState(false)
+
+    const x = useMotionValue(0);
+    const opacity = useTransform(x, [-100, 0, 100], [0, 1, 0]);
 
     useEffect(()=> {
         fetchWords()
@@ -38,6 +42,43 @@ const Card: React.FC = () => {
     const addWords = (data:Word) => {
         setRepeat(prev=>[...prev, data])
     }
+    
+    const handleDragEnd = (evt:any) => {
+        const layerX = evt.layerX;
+        if (!useRepeat && layerX <= 50 && data.length - 1 !== (activeCard ) ) {
+            setRepeat(prev=>[...prev, data[activeCard]])
+            setActiveCard(activeCard+1)
+            setDoneCards(doneCards+1)
+        } else if (useRepeat && layerX <= 50 && repeat.length - 1 !== (activeCard ) ) {
+            setRepeat(prev=>[...prev, data[activeCard]])
+            setActiveCard(activeCard+1)
+            setDoneCards(doneCards+1)
+        } else if (!useRepeat && layerX > 250 && data.length - 1 !== (activeCard ) ) {
+            setActiveCard(activeCard+1)
+            setDoneCards(doneCards+1)
+        } else if (useRepeat && layerX > 250 && repeat.length - 1 !== (activeCard )) {
+            setActiveCard(activeCard+1)
+            setDoneCards(doneCards+1)
+
+        } else if (!useRepeat && layerX <= 50 && data.length - 1 === (activeCard )){
+            setRepeat(prev=>[...prev, data[activeCard]])
+            setActiveCard(0)
+            setDoneCards(1)
+            setUseRepeat(true)
+        } else if (useRepeat && layerX <= 50 && repeat.length - 1 === (activeCard )) {
+            setRepeat(prev=>[...prev, data[activeCard]])
+            setActiveCard(0)
+            setDoneCards(1)
+        } else if (!useRepeat && layerX > 250 && data.length - 1 === (activeCard )) {
+            setActiveCard(0)
+            setDoneCards(1)
+            setUseRepeat(true)
+        } else if (useRepeat && layerX > 250 && repeat.length - 1 === (activeCard )) {
+            setActiveCard(0)
+            setDoneCards(1)
+            setUseRepeat(false)
+        }
+    }
     return (
         <div className="mx-auto mt-10 text-center">
             <BackButton/>
@@ -47,25 +88,45 @@ const Card: React.FC = () => {
                 <p className="text-lg">{doneCards}/{data.length}</p>
             }
             {useRepeat && repeat ?
-                <div onClick={()=> setFlip(!flip)}
-                    className={`card ${flip ? "flip" : ""} bg-pink-200 px-4 py-2 rounded-md w-80 h-40 mx-auto mt-10 flex flex-row justify-center items-center  cursor-pointer`} >
-                    <span className="card__face text-5xl card__face--front">
-                        {repeat[activeCard].word}
-                        </span>
-                    <span className="card__face card__face--back w-fit px-4 py-2 rounded-md text-5xl text-center" 
-                        role="img"
-                    >{repeat[activeCard].image}<span>{repeat[activeCard].trans}</span></span>
-                </div>:
-                <div onClick={()=> setFlip(!flip)}
-                    className={`card ${flip ? "flip" : ""} bg-pink-200 px-4 py-2 rounded-md w-80 h-40 mx-auto mt-10 flex flex-row justify-center items-center  cursor-pointer`} >
-                    <span className="card__face text-5xl card__face--front">
-                        {data[activeCard].word}
-                        </span>
-                    <span className="card__face card__face--back w-fit px-4 py-2 rounded-md text-5xl text-center" 
-                        role="img"
-                    >{data[activeCard].image}<span>{data[activeCard].trans}</span></span>
+                <motion.div drag="x"
+                    dragConstraints={{
+                        left: 0,
+                        right: 0,
+                    }}
+                    style={{ x, opacity }}
+                    onDragEnd={handleDragEnd}>
+                    <div onClick={()=> setFlip(!flip)}
+                        className={`card ${flip ? "flip" : ""} bg-pink-200 px-4 py-2 rounded-md w-80 h-40 mx-auto mt-10 flex flex-row justify-center items-center  cursor-pointer`} >
+                        <span className="card__face text-5xl card__face--front">
+                            {repeat[activeCard].word}
+                            </span>
+                        <span className="card__face card__face--back w-fit px-4 py-2 rounded-md text-5xl text-center" 
+                            role="img"
+                        >{repeat[activeCard].image}<span>{repeat[activeCard].trans}</span></span>
+                    </div>
+                </motion.div>
+            :
+                    <motion.div 
+                        drag="x"
+                        dragConstraints={{
+                            left: 0,
+                            right: 0,
+                        }}
+                        style={{ x, opacity }}
+                        onDragEnd={handleDragEnd}
+                         >
+                        <div onClick={()=> setFlip(!flip)}
+                         className={`card ${flip ? "flip" : ""} bg-pink-200 px-4 py-2 rounded-md w-80 h-40 mx-auto mt-10 flex flex-row justify-center items-center  cursor-pointer`}>
+                            <span className="card__face text-5xl card__face--front">
+                                {data[activeCard].word}
+                                </span>
+                            <span className="card__face card__face--back w-fit px-4 py-2 rounded-md text-5xl text-center" 
+                                role="img"
+                            >{data[activeCard].image}<span>{data[activeCard].trans}</span></span>
+                        </div>
+                    </motion.div>
                 
-                </div>}
+            }
             <div className="flex justify-center items-center w-1/2 m-auto">
                 {activeCard !== 0 && 
                     <button onClick={()=> {setActiveCard(activeCard-1); setDoneCards(doneCards-1)}} 
@@ -107,3 +168,5 @@ const Card: React.FC = () => {
 }
 
 export default Card;
+
+
